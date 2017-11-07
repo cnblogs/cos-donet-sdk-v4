@@ -10,7 +10,7 @@ using System;
 
 namespace QCloud.CosApi.Common
 {
-	static class CosParameters
+	public static class CosParameters
 	{
 		public const string Authorization = "Authorization";
 		
@@ -95,7 +95,7 @@ namespace QCloud.CosApi.Common
 		public const int SLIZE_SIZE_3M = 3*1024*1024;
 	}
 	
-	internal static class AUTHORITY
+	public static class AUTHORITY
 	{
 		public const string AUTHORITY_INVALID = "eInvalid";
 		public const string AUTHORITY_PRIVATE = "eWRPrivate";

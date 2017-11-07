@@ -10,7 +10,7 @@ using System;
 
 namespace QCloud.CosApi.Enums
 {
-	static class CosParameters
+	public static class CosParameters
 	{
 		public const string Authorization = "Authorization";
 		

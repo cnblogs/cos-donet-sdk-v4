@@ -11,7 +11,7 @@ using Newtonsoft.Json.Linq;
 
 namespace QCloud.CosApi.Api
 {
-	class CosCloud
+	public class CosCloud
 	{
 		const string COSAPI_CGI_URL = "http://sh.file.myqcloud.com/files/v2/";
 		//文件大于8M时采用分片上传,小于等于8M时采用单文件上传
