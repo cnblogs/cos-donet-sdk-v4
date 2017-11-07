@@ -15,7 +15,7 @@ namespace QCloud.CosApi.Common
             {
                 return "-1";
             }
-            var now = DateTime.Now.ToUnixTime() / 1000;
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             var rand = new Random();
             var rdm = rand.Next(Int32.MaxValue);
             var plainText = "a=" + appId + "&k=" + secretId + "&e=" + expired + "&t=" + now + "&r=" + rdm + "&f=" + fileId + "&b=" + bucketName;
