@@ -20,9 +20,11 @@ namespace QCloud.CosApi.Util
         /// </summary>
         /// <param name="remotePath"></param>
         /// <returns></returns>
+        [Obsolete]
         public static string EncodeRemotePath(string remotePath)
 		{
-			if (remotePath == "/") {
+            //Simpler approach: HttpUtility.UrlPathEncode(remotePath.TrimStart('/'))
+            if (remotePath == "/") {
 				return remotePath;
 			}
 			var endWith = remotePath.EndsWith("/");

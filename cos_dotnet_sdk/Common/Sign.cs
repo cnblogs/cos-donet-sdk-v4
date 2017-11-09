@@ -9,7 +9,7 @@ namespace QCloud.CosApi.Common
 {
     public class Sign
     {
-        private static string Signature(int appId, string secretId, string secretKey, long expired, string fileId, string bucketName)
+        public static string Signature(int appId, string secretId, string secretKey, long expired, string fileId, string bucketName)
         {
             if (secretId == "" || secretKey == "")
             {
@@ -41,6 +41,5 @@ namespace QCloud.CosApi.Common
             var fileId = "/" + appId + "/" + bucketName + HttpUtils.EncodeRemotePath(remotePath);
             return Signature(appId, secretId, secretKey, 0, fileId, bucketName);
         }
-
     }
 }
