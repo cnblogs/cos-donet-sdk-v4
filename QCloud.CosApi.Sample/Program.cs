@@ -40,7 +40,7 @@ namespace QCloud.CosApi.Sample
 
             using (var fs = new FileStream(filePath, FileMode.Open))
             {
-                var result = await cosClient.UploadFileAsync("cnblogsimages2018", "/test/logo.png", fs);
+                var result = await cosClient.UploadFile("cnblogsimages2018", "/test/logo.png", fs);
                 Console.WriteLine($"{(result ? "Succeeded" : "Failed")} to Upload");
             }
         }

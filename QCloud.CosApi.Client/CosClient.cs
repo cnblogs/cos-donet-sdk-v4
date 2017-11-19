@@ -29,23 +29,13 @@ namespace QCloud.CosApi.Client
             _logger = loggerFactory.CreateLogger<CosClient>();
         }
 
-        public async Task<bool> UploadFileAsync(string bucketName, string remotePath, Stream uploadStream)
+        public async Task<bool> UploadFile(string bucketName, string remotePath, Stream uploadStream)
         {
-            var encodedRemotePath = HttpUtility.UrlPathEncode(remotePath.TrimStart('/'));
-            var path = $"/{_cosClientOptions.AppId}/{bucketName}/{encodedRemotePath}";
-            var url = $"{BASE_ADDRESS}{path}";
-            var signature = GenerateSignature(bucketName);
             var fileName = Path.GetFileName(remotePath);
-
-            _logger.LogInformation($"POST to {url}");
-
-            var request = new HttpRequestMessage(HttpMethod.Post, url);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Authorization", signature);
-
             var boundary = "---------------" + DateTime.Now.Ticks.ToString("x");
+
             var data = new MultipartFormDataContent(boundary);
             data.Add(new ByteArrayContent(Encoding.UTF8.GetBytes("upload")), "\"op\"");
-
             var streamContent = new StreamContent(uploadStream);
             streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
             {
@@ -57,11 +47,24 @@ namespace QCloud.CosApi.Client
 
             data.Headers.Remove("Content-Type");
             data.Headers.Add("Content-Type", "multipart/form-data; boundary=" + boundary);
-            request.Content = data;
+
+            return await SendRequest(bucketName, remotePath, HttpMethod.Post, data);
+        }
+
+        public async Task<bool> SendRequest(string bucketName, string remotePath, HttpMethod httpMethod, HttpContent httpContent)
+        {
+            var encodedRemotePath = HttpUtility.UrlPathEncode(remotePath.TrimStart('/'));
+            var path = $"/{_cosClientOptions.AppId}/{bucketName}/{encodedRemotePath}";
+            var url = $"{BASE_ADDRESS}{path}";
+            var signature = GenerateSignature(bucketName);            
+
+            _logger.LogInformation($"{httpMethod} to {url}");
+
+            var request = new HttpRequestMessage(httpMethod, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Authorization", signature);
+            if(httpContent != null) request.Content = httpContent;                  
             var response = await _httpClient.SendAsync(request);
-
             var json = await response.Content.ReadAsStringAsync();
-
             var result = new { Code = 0, Message = "" };
             try
             {
