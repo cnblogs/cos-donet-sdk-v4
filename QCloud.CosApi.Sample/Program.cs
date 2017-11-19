@@ -38,10 +38,23 @@ namespace QCloud.CosApi.Sample
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             var cosClient = serviceProvider.GetService<CosClient>();
 
+            var bucketName = "cnblogsimages2018";
+            var remotePath = "/test/logo.png";
             using (var fs = new FileStream(filePath, FileMode.Open))
             {
-                var result = await cosClient.UploadFile("cnblogsimages2018", "/test/logo.png", fs);
-                Console.WriteLine($"{(result ? "Succeeded" : "Failed")} to Upload");
+                var result = await cosClient.UploadFile(bucketName, "/test/logo.png", fs);
+                if (result.Success)
+                {
+                    Console.WriteLine("Succeeded to upload");
+                    Console.WriteLine("access url: " + result.Value);
+
+                    result = await cosClient.DeleteFile(bucketName, remotePath);
+                    Console.WriteLine($"{(result.Success ? "Succeeded" : "Failed")} to delete");
+                }
+                else
+                {
+                    Console.WriteLine("Failed to upload");
+                }
             }
         }
     }

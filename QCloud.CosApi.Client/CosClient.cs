@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using QCloud.CosApi.Common;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace QCloud.CosApi.Client
             _logger = loggerFactory.CreateLogger<CosClient>();
         }
 
-        public async Task<bool> UploadFile(string bucketName, string remotePath, Stream uploadStream)
+        public async Task<BooleanResult> UploadFile(string bucketName, string remotePath, Stream uploadStream)
         {
             var fileName = Path.GetFileName(remotePath);
             var boundary = "---------------" + DateTime.Now.Ticks.ToString("x");
@@ -48,10 +49,22 @@ namespace QCloud.CosApi.Client
             data.Headers.Remove("Content-Type");
             data.Headers.Add("Content-Type", "multipart/form-data; boundary=" + boundary);
 
-            return await SendRequest(bucketName, remotePath, HttpMethod.Post, data);
+            var result = await SendRequest(bucketName, remotePath, HttpMethod.Post, data);
+            if(result.Success)
+            {
+                result.Value = JObject.Parse(result.Value)?["data"]?["access_url"]?.Value<string>();
+            }
+            return result;
         }
 
-        public async Task<bool> SendRequest(string bucketName, string remotePath, HttpMethod httpMethod, HttpContent httpContent)
+        public async Task<BooleanResult> DeleteFile(string bucketName, string remotePath)
+        {
+            var json = JsonConvert.SerializeObject(new { op = "delete" });
+            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+            return await SendRequest(bucketName, remotePath, HttpMethod.Post, httpContent);
+        }
+
+        private async Task<BooleanResult> SendRequest(string bucketName, string remotePath, HttpMethod httpMethod, HttpContent httpContent)
         {
             var encodedRemotePath = HttpUtility.UrlPathEncode(remotePath.TrimStart('/'));
             var path = $"/{_cosClientOptions.AppId}/{bucketName}/{encodedRemotePath}";
@@ -70,28 +83,23 @@ namespace QCloud.CosApi.Client
             {
                 result = JsonConvert.DeserializeAnonymousType(json, result);
             }
-            catch
+            catch(Exception ex)
             {
                 _logger.LogError(0, json);
-                return false;
+                return BooleanResult.Fail(ex.Message);
             }
 
             if (result.Code != 0)
             {
                 _logger.LogError(json);
-                return false;
+                return BooleanResult.Fail(result.Message);
             }
             else
             {
-                _logger.LogInformation(json);
-                return true;
+                _logger.LogInformation(json);                
+                return BooleanResult.Succeed(json);
             }
-        }
-
-        //Task<bool> DeleteFileAsync(string virtualPath)
-        //{
-
-        //}
+        }        
 
         private string GenerateSignature(string bucketName)
         {
