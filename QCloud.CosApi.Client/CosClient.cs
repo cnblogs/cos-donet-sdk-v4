@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using QCloud.CosApi.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
