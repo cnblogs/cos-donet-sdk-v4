@@ -18,8 +18,11 @@ namespace QCloud.CosApi.Client
     {
         private CosClientOptions _cosClientOptions;
         private const string BASE_ADDRESS = "http://sh.file.myqcloud.com/files/v2";
-        private const int SIGN_EXPIRED_TIME = 180;
-        private readonly static HttpClient _httpClient = new HttpClient();
+        private const int SIGN_EXPIRED_TIME = 60 * 10; //seconds
+        private readonly static HttpClient _httpClient = new HttpClient()
+        {
+            Timeout = TimeSpan.FromMilliseconds(-1)
+        };
         private readonly ILogger _logger;
 
         public CosClient(IOptions<CosClientOptions> cosClientOptions,
@@ -68,13 +71,13 @@ namespace QCloud.CosApi.Client
             var encodedRemotePath = HttpUtility.UrlPathEncode(remotePath.TrimStart('/'));
             var path = $"/{_cosClientOptions.AppId}/{bucketName}/{encodedRemotePath}";
             var url = $"{BASE_ADDRESS}{path}";
-            var signature = GenerateSignature(bucketName);            
+            var signature = GenerateSignature(bucketName);
 
             _logger.LogInformation($"{httpMethod} to {url}");
 
             var request = new HttpRequestMessage(httpMethod, url);
             request.Headers.Authorization = new AuthenticationHeaderValue("Authorization", signature);
-            if(httpContent != null) request.Content = httpContent;                  
+            if(httpContent != null) request.Content = httpContent;
             var response = await _httpClient.SendAsync(request);
             var json = await response.Content.ReadAsStringAsync();
             var result = new { Code = 0, Message = "" };
@@ -95,10 +98,10 @@ namespace QCloud.CosApi.Client
             }
             else
             {
-                _logger.LogInformation(json);                
+                _logger.LogInformation(json);
                 return BooleanResult.Succeed(json);
             }
-        }        
+        }
 
         private string GenerateSignature(string bucketName)
         {
