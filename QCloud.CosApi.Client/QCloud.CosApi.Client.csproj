@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Cnblogs team</Authors>
+    <PackageProjectUrl>https://github.com/cnblogs/cos-donet-sdk-v4</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
