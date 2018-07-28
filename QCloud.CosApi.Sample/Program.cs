@@ -21,7 +21,7 @@ namespace QCloud.CosApi.Sample
             var filePath = args[0];
 
             var conf = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
+                .SetBasePath(Directory.GetCurrentDirectory())                
                 .AddJsonFile("appsettings.json", true, true)
                 .AddJsonFile("appsettings.Development.json", true, true)
                 .Build();
@@ -31,9 +31,8 @@ namespace QCloud.CosApi.Sample
                 .AddConfiguration(conf.GetSection("Logging"))
                 .AddConsole());
 
-            services.AddOptions();
-            services.Configure<CosClientOptions>(conf.GetSection("cosClient"));
-            services.AddSingleton<CosClient>();
+            //services.AddOptions();
+            services.AddCosClient(conf);
 
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             var cosClient = serviceProvider.GetService<CosClient>();
