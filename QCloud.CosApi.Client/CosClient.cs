@@ -19,12 +19,15 @@ namespace QCloud.CosApi.Client
         private CosClientOptions _cosClientOptions;
         private const string BASE_ADDRESS = "http://sh.file.myqcloud.com/files/v2";
         private const int SIGN_EXPIRED_TIME = 180;
-        private readonly static HttpClient _httpClient = new HttpClient();
+        private readonly HttpClient _httpClient;
         private readonly ILogger _logger;
 
-        public CosClient(IOptions<CosClientOptions> cosClientOptions,
+        public CosClient(
+            HttpClient httpClient,
+            IOptions<CosClientOptions> cosClientOptions,
             ILoggerFactory loggerFactory)
         {
+            _httpClient = httpClient;
             _cosClientOptions = cosClientOptions.Value;
             _logger = loggerFactory.CreateLogger<CosClient>();
         }
