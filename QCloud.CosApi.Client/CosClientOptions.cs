@@ -15,6 +15,19 @@ namespace QCloud.CosApi.Client
 
         public int HttpTimeout { get; set; } = 60;
 
-        public CosClientOptions Value => this;
+        public CosClientOptions Value
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(SecretId))
+                    throw new ArgumentNullException(nameof(SecretId));
+                if (string.IsNullOrEmpty(SecretId))
+                    throw new ArgumentNullException(nameof(SecretKey));
+                if (AppId <= 0)
+                    throw new ArgumentOutOfRangeException(nameof(AppId));
+
+                return this;
+            }
+        }
     }
 }
